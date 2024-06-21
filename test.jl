@@ -44,15 +44,14 @@ plot(
 )
 
 # Does not work : 
-savefig(a, "1_plot_test.png") 
-png(a, "1_plot_test.png")
+# savefig(a, "1_plot_test.png") 
+# png(a, "1_plot_test.png")
 
 plot(
 	scatter(x,y),
 	title = "Attempt to Linear Regression",
 	ylabel = "Random variable + 2",
 	xlabel = "Random variable",
-	smooth = true
 )
 
 Plots.abline!(1,2)
@@ -87,7 +86,7 @@ coefs
 
 # We see that (X\y) yields the same results as lm(...) + GLM.coef(model)
 
-# 2 Predicting one continuous variable with several continuous variable : 
+# 2 Predicting one continuous variable with several continuous variables : 
 # this is a multiple linear regression
 
 w,y,x,z = (rand(100) for _ in 1:5)
@@ -110,7 +109,9 @@ end
 
 # Now, let's try to plot the model : 
 
-plot!((z) -> coefs[1] + coefs[2] * w + coefs[3] * x + coefs[4] * z, 0,1, label = "fit")
+plot!((w) -> coefs[1] + coefs[2] * w, 0,1, label = "fit")
+plot!((x) -> coefs[1] + coefs[3] * x, 0,1, label = "fit")
+plot!((z) -> coefs[1] + coefs[4] * z, 0,1, label = "fit")
 
 plot!((x) -> coefs[1] + coefs[2] * x, 0, 1, label="fit_exact")
 
@@ -119,3 +120,42 @@ plot!((x) -> coefs[1] + coefs[2] * x, 0, 1, label="fit_exact")
 # A priori, the matrix computations method seems faster than using the GLM method.
 
 # But how does the matrix computations method work ? 
+
+using PlotlyJS
+
+f(x,y) = 60 * cos(2 * atan(y/x) + 0.544331*sqrt(x^2+y^2)) / (20+sqrt(x^2+y^2))
+x = LinRange(-45, 45, 200)
+z = [f(u, v) for u in x, v in x]
+waves = PlotlyJS.surface(
+            z=z, 
+            x=x,  
+            y=x,  
+            colorscale=colors.viridis,
+            showscale=false)
+Plot(waves, Layout(width=600, height=600, 
+                   scene= attr(aspectmode="data",
+                               camera_eye=attr(x=2.55, y=2.55, z=1.4))))
+
+
+# Trying with my data : 
+
+mydata = PlotlyJS.surface(
+            z=z, 
+            x=x,  
+            y=x,  
+            colorscale=w,
+            showscale=true)
+
+Plot(mydata, Layout(width=600, height=600, 
+                   scene= attr(aspectmode="data",
+                               camera_eye=attr(x=2.55, y=2.55, z=1.4))))
+
+
+using Plots
+plotlyjs()
+plot(scatter(x, y, z;
+		marker_z = w,
+		marker_size = 0.5))
+
+size(x)
+size(y)
